@@ -47,7 +47,6 @@
     "download": "^8.0.0",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-svelte3": "^3.4.1",
     "esno": "^0.14.1",
     "express": "4.17.2",
