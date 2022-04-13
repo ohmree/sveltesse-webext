@@ -69,7 +69,7 @@ If you prefer to do it manually with the cleaner git history
 > If you don't have pnpm installed, run: npm install -g pnpm
 
 ```bash
-npx degit antfu/vitesse-webext my-webext
+npx degit ohmree/sveltesse-webext my-webext
 cd my-webext
 pnpm i
 ```

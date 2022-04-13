@@ -1,7 +1,7 @@
 The MIT License (MIT)
 =====================
 
-Copyright © 2022 [ohmree](https://github.com/antfu)  
+Copyright © 2022 [ohmree](https://github.com/ohmree)  
 Copyright © 2021 [Anthony Fu](https://github.com/antfu)
 
 Permission is hereby granted, free of charge, to any person
