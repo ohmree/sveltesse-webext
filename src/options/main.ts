@@ -1,6 +1,9 @@
-import { createApp } from 'vue'
-import App from './Options.vue'
-import '../styles'
+import App from './Options.svelte';
+import '../styles';
 
-const app = createApp(App)
-app.mount('#app')
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const target = document.getElementById('app')!;
+target.innerHTML = '';
+const app = new App({ target });
+
+export default app;

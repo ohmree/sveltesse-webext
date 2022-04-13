@@ -1,21 +1,20 @@
-import { defineConfig } from 'vite'
-import WindiCSS from 'vite-plugin-windicss'
-import { sharedConfig } from './vite.config'
-import { r, isDev } from './scripts/utils'
-import windiConfig from './windi.config'
-import packageJson from './package.json'
+import { defineConfig } from 'vite';
+import windiCSS from 'vite-plugin-windicss';
+import { sharedConfig } from './vite.config';
+import { r } from './scripts/utils';
+import windiConfig from './windi.config';
+import packageJson from './package.json';
 
 // bundling the content script using Vite
 export default defineConfig({
   ...sharedConfig,
+  mode: 'development',
   build: {
-    watch: isDev
-      ? {}
-      : undefined,
-    outDir: r('extension/dist/contentScripts'),
+    watch: {},
+    outDir: r('dist/contentScripts'),
     cssCodeSplit: false,
     emptyOutDir: false,
-    sourcemap: isDev ? 'inline' : false,
+    sourcemap: 'inline',
     lib: {
       entry: r('src/contentScripts/index.ts'),
       name: packageJson.name,
@@ -29,10 +28,11 @@ export default defineConfig({
     },
   },
   plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     ...sharedConfig.plugins!,
 
     // https://github.com/antfu/vite-plugin-windicss
-    WindiCSS({
+    windiCSS({
       config: {
         ...windiConfig,
         // disable preflight to avoid css population
@@ -40,4 +40,4 @@ export default defineConfig({
       },
     }),
   ],
-})
+});

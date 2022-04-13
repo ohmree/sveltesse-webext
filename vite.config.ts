@@ -1,16 +1,19 @@
-import { dirname, relative } from 'path'
-import { defineConfig, UserConfig } from 'vite'
-import Vue from '@vitejs/plugin-vue'
-import Icons from 'unplugin-icons/vite'
-import IconsResolver from 'unplugin-icons/resolver'
-import Components from 'unplugin-vue-components/vite'
-import AutoImport from 'unplugin-auto-import/vite'
-import WindiCSS from 'vite-plugin-windicss'
-import windiConfig from './windi.config'
-import { r, port, isDev } from './scripts/utils'
+// import { dirname, relative } from 'path';
+import { defineConfig, type UserConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import icons from 'unplugin-icons/vite';
+import autoImport from 'unplugin-auto-import/vite';
+import windiCSS from 'vite-plugin-windicss';
+import windiConfig from './windi.config';
+import { r, port, isDev } from './scripts/utils';
+import manifest from './scripts/manifest';
+import webExtension from 'vite-plugin-web-extension';
+
+const browser: string = process.env.TARGET_BROWSER ?? 'chrome';
 
 export const sharedConfig: UserConfig = {
   root: r('src'),
+  envDir: r('.'),
   resolve: {
     alias: {
       '~/': `${r('src')}/`,
@@ -20,61 +23,47 @@ export const sharedConfig: UserConfig = {
     __DEV__: isDev,
   },
   plugins: [
-    Vue(),
+    svelte(),
 
-    AutoImport({
+    autoImport({
       imports: [
-        'vue',
+        'svelte',
+        'svelte/animate',
+        'svelte/easing',
+        'svelte/motion',
+        'svelte/store',
+        'svelte/transition',
         {
-          'webextension-polyfill': [
-            ['*', 'browser'],
-          ],
+          'webextension-polyfill': [['*', 'browser']],
         },
       ],
       dts: r('src/auto-imports.d.ts'),
     }),
 
-    // https://github.com/antfu/unplugin-vue-components
-    Components({
-      dirs: [r('src/components')],
-      // generate `components.d.ts` for ts support with Volar
-      dts: true,
-      resolvers: [
-        // auto import icons
-        IconsResolver({
-          componentPrefix: '',
-        }),
-      ],
-    }),
-
     // https://github.com/antfu/unplugin-icons
-    Icons(),
+    icons({ compiler: 'svelte' }),
 
-    // rewrite assets to use relative path
-    {
-      name: 'assets-rewrite',
-      enforce: 'post',
-      apply: 'build',
-      transformIndexHtml(html, { path }) {
-        return html.replace(/"\/assets\//g, `"${relative(dirname(path), '/assets')}/`)
-      },
-    },
+    // // rewrite assets to use relative path
+    // {
+    //   name: 'assets-rewrite',
+    //   enforce: 'post',
+    //   apply: 'build',
+    //   transformIndexHtml(html, { path }) {
+    //     return html.replace(
+    //       /"\/assets\//g,
+    //       `"${relative(dirname(path), '/assets')}/`,
+    //     );
+    //   },
+    // },
   ],
   optimizeDeps: {
-    include: [
-      'vue',
-      '@vueuse/core',
-      'webextension-polyfill',
-    ],
-    exclude: [
-      'vue-demi',
-    ],
+    include: ['svelte', 'webextension-polyfill'],
   },
-}
+};
 
 export default defineConfig(({ command }) => ({
   ...sharedConfig,
-  base: command === 'serve' ? `http://localhost:${port}/` : '/dist/',
+  base: command === 'serve' ? `http://localhost:${port}/` : '/',
   server: {
     port,
     hmr: {
@@ -82,7 +71,7 @@ export default defineConfig(({ command }) => ({
     },
   },
   build: {
-    outDir: r('extension/dist'),
+    outDir: r('dist'),
     emptyOutDir: false,
     sourcemap: isDev ? 'inline' : false,
     // https://developer.chrome.com/docs/webstore/program_policies/#:~:text=Code%20Readability%20Requirements
@@ -98,11 +87,20 @@ export default defineConfig(({ command }) => ({
     },
   },
   plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     ...sharedConfig.plugins!,
 
+    command === 'build'
+      ? webExtension({
+          assets: 'assets',
+          browser,
+          manifest,
+        })
+      : undefined,
+
     // https://github.com/antfu/vite-plugin-windicss
-    WindiCSS({
+    windiCSS({
       config: windiConfig,
     }),
   ],
-}))
+}));
